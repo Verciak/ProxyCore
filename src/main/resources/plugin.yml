@@ -1,0 +1,4 @@
+name: ProxyCore
+version: 1.0
+author: VerttyPL
+main: pl.vertty.proxy.Main
