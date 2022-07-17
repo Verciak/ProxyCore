@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.util.function.Consumer;
 
 public class Database {
+
     private final HikariDataSource dataSource = new HikariDataSource();
 
     public Database() {
@@ -15,54 +16,58 @@ public class Database {
         String base = "blazepe";
         String user = "root";
         String password = "domiS2002";
+
         int port = 3306;
-        this.dataSource.setJdbcUrl("jdbc:mysql://" + host + ":" + port + "/" + base + "?useSSL=false&serverTimezone=Europe/Warsaw");
-        this.dataSource.setUsername(user);
-        this.dataSource.setPassword(password);
-        this.dataSource.addDataSourceProperty("useSSL", Boolean.valueOf(false));
-        this.dataSource.addDataSourceProperty("cachePrepStmts", Boolean.valueOf(true));
-        this.dataSource.addDataSourceProperty("prepStmtCacheSize", Integer.valueOf(250));
-        this.dataSource.addDataSourceProperty("prepStmtCacheSqlLimit", Integer.valueOf(2048));
-        this.dataSource.addDataSourceProperty("useServerPrepStmts", Boolean.valueOf(true));
-        this.dataSource.addDataSourceProperty("rewriteBatchedStatements", Boolean.valueOf(true));
-        this.dataSource.setConnectionTimeout(15000L);
-        this.dataSource.setMaximumPoolSize(5);
+
+        dataSource.setJdbcUrl("jdbc:mysql://" + host + ":" + port + "/" + base + "?useSSL=false&serverTimezone=Europe/Warsaw");
+        dataSource.setUsername(user);
+        dataSource.setPassword(password);
+        dataSource.addDataSourceProperty("useSSL", false);
+        dataSource.addDataSourceProperty("cachePrepStmts", true);
+        dataSource.addDataSourceProperty("prepStmtCacheSize", 250);
+        dataSource.addDataSourceProperty("prepStmtCacheSqlLimit", 2048);
+        dataSource.addDataSourceProperty("useServerPrepStmts", true);
+        dataSource.addDataSourceProperty("rewriteBatchedStatements", true);
+        dataSource.setConnectionTimeout(15000L);
+        dataSource.setMaximumPoolSize(5);
     }
 
     public void close() {
-        this.dataSource.close();
+        dataSource.close();
     }
 
     public ResultSet query(String query) {
-        try (Connection connection = this.dataSource.getConnection()) {
-            PreparedStatement statement = connection.prepareStatement(query);
-            return statement.executeQuery();
-        } catch (SQLException e) {
-            e.printStackTrace();
+        try (Connection connection = dataSource.getConnection()) {
+            return connection.prepareStatement(query).executeQuery();
+        } catch (SQLException ex) {
+            ex.printStackTrace();
             return null;
         }
     }
 
-    public void executeQuery(String query, Consumer<ResultSet> action) {
-        try(Connection connection = this.dataSource.getConnection();
+    public void executeQuery(String query) {
+        try {
+            Connection connection = this.dataSource.getConnection();
             PreparedStatement statement = connection.prepareStatement(query);
-            ResultSet result = statement.executeQuery()) {
-            action.accept(result);
-        } catch (SQLException e) {
-            e.printStackTrace();
+
+            statement.executeQuery();
+        } catch (SQLException ex) {
+            ex.printStackTrace();
         }
     }
 
-    public int executeUpdate(String query) {
-        try(Connection connection = this.dataSource.getConnection();
-            PreparedStatement statement = connection.prepareStatement(query)) {
-            if (statement == null)
-                return 0;
-            return statement.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return 0;
+    public void executeUpdate(String query) {
+        try {
+            Connection connection = this.dataSource.getConnection();
+            PreparedStatement statement = connection.prepareStatement(query);
+
+            if (statement == null) {
+                return;
+            }
+
+            statement.executeUpdate();
+        } catch (SQLException ex) {
+            ex.printStackTrace();
         }
     }
 }
-
