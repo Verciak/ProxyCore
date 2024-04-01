@@ -1,4 +1,4 @@
-# ProxyCore [WaterDogPE 1.19]
+# ProxyCore [WaterDogPE 1.19] [Nukkit]
 Plugin na proxy chuj wie co tam bylo!
 
 ## Lista funkcji
